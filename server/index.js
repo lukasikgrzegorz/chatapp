@@ -15,10 +15,19 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log(socket.id),
-    socket.on("disconnect", () => {
-      console.log("User Disconnected", socket.id);
-    });
+  console.log(socket.id);
+
+  socket.on("join_room", (data) => {
+    socket.join(data);
+    console.log(`User with id: ${socket.id} joind room: ${data}`);
+  });
+    
+    
+    
+
+  socket.on("disconnect", () => {
+    console.log("User Disconnected", socket.id);
+  });
 });
 
 server.listen(3001, () => {
