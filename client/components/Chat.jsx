@@ -1,35 +1,59 @@
-import { useState } from "react";
+import PropTypes from "prop-types";
+import { useState, useEffect } from "react";
 
 const Chat = ({ socket, username, room }) => {
   const [currentMessage, setCurrentMessage] = useState("");
+  const [messageList, setMessageList] = useState([]);
 
   const handleChange = (e) => {
     setCurrentMessage(e.target.value);
   };
 
   const handleSubmit = async (e) => {
+    e.preventDefault();
     if (currentMessage !== "") {
-      e.preventDefault();
-
       const messageData = {
         room: room,
-        username: username,
+        author: username,
         message: currentMessage,
         time: `${new Date(Date.now()).getHours()} : ${new Date(
           Date.now()
         ).getMinutes()} `,
       };
 
+      await socket.emit("send_message", messageData);
+      setMessageList([...messageList, messageData]);
+
       setCurrentMessage("");
     }
   };
+
+  useEffect(() => {
+    socket.on(
+      "recive_message",
+      (data) => {
+        setMessageList([...messageList, data]);
+      },
+      [socket]
+    );
+  });
 
   return (
     <div>
       <div>
         <p>Live chat</p>
       </div>
-      <div></div>
+      <div>
+        {messageList.map((messageContent, id) => {
+          return (
+            <div key={id}>
+              <h5>{messageContent.message}</h5>
+              <p>{messageContent.author}
+              {messageContent.time}</p>
+            </div>
+          );
+        })}
+      </div>
       <form onSubmit={handleSubmit}>
         <textarea
           type="text"
@@ -41,6 +65,12 @@ const Chat = ({ socket, username, room }) => {
       </form>
     </div>
   );
+};
+
+Chat.propTypes = {
+  socket: PropTypes.object.isRequired,
+  username: PropTypes.string.isRequired,
+  room: PropTypes.string.isRequired,
 };
 
 export default Chat;
