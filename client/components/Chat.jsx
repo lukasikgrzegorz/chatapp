@@ -1,12 +1,17 @@
 import PropTypes from "prop-types";
 import { useState, useEffect } from "react";
 
-const Chat = ({ socket, username, room }) => {
+const Chat = ({ socket, username, room, handleLeave }) => {
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageList, setMessageList] = useState([]);
 
   const handleChange = (e) => {
     setCurrentMessage(e.target.value);
+  };
+
+  const leaveRoom = () => {
+    socket.emit("leave_room", room);
+    handleLeave();
   };
 
   const handleSubmit = async (e) => {
@@ -41,15 +46,18 @@ const Chat = ({ socket, username, room }) => {
   return (
     <div>
       <div>
-        <p>Live chat</p>
+        <h4>Live chat ({room})</h4>
+        <button onClick={leaveRoom}>Leave this room</button>
       </div>
       <div>
         {messageList.map((messageContent, id) => {
           return (
             <div key={id}>
               <h5>{messageContent.message}</h5>
-              <p>{messageContent.author}
-              {messageContent.time}</p>
+              <p>
+                {messageContent.author}
+                {messageContent.time}
+              </p>
             </div>
           );
         })}
@@ -71,6 +79,7 @@ Chat.propTypes = {
   socket: PropTypes.object.isRequired,
   username: PropTypes.string.isRequired,
   room: PropTypes.string.isRequired,
+  handleLeave: PropTypes.func.isRequired,
 };
 
 export default Chat;

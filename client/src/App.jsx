@@ -31,6 +31,11 @@ function App() {
     }
   };
 
+  const handleLeave = (room) => {
+    setShowChat(false);
+    socket.emit("leave_room", room);
+  };
+
   return (
     <>
       {!showChat ? (
@@ -51,7 +56,12 @@ function App() {
           <button type="submit">Join a room</button>
         </form>
       ) : (
-        <Chat socket={socket} username={form.username} room={form.room} />
+        <Chat
+          socket={socket}
+          username={form.username}
+          room={form.room}
+          handleLeave={handleLeave}
+        />
       )}
     </>
   );
